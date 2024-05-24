@@ -1,0 +1,28 @@
+﻿.courses h1 {
+  text-align: center;
+}
+.courses .courses-container .course-box {
+  background-color: aliceblue;
+  padding: 10px 0;
+  margin: 10px 0;
+}
+.courses .courses-container .course-box p {
+  text-align: center;
+  font-weight: 700;
+}
+.courses .courses-container .course-box p span {
+  font-weight: 400;
+}
+.courses .courses-container .course-box a {
+  display: block;
+  margin: auto;
+  width: 10%;
+  background-color: lightgray;
+  text-align: center;
+  padding: 5px 0;
+  color: black;
+}
+.courses .courses-container .course-box a:hover {
+  background-color: lightslategrey;
+  color: white;
+}

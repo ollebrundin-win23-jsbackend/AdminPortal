@@ -14,5 +14,21 @@
   {
     "outputFile": "Components/Pages/Account/SignUp/SignUp.razor.css",
     "inputFile": "Components/Pages/Account/SignUp/SignUp.razor.scss"
+  },
+  {
+    "outputFile": "Components/Account/AccountSidebar.razor.css",
+    "inputFile": "Components/Account/AccountSidebar.razor.scss"
+  },
+  {
+    "outputFile": "Components/Pages/Account/Security/Security.razor.css",
+    "inputFile": "Components/Pages/Account/Security/Security.razor.scss"
+  },
+  {
+    "outputFile": "Components/Pages/Home.razor.css",
+    "inputFile": "Components/Pages/Home.razor.scss"
+  },
+  {
+    "outputFile": "Components/Pages/Courses/Courses.razor.css",
+    "inputFile": "Components/Pages/Courses/Courses.razor.scss"
   }
 ]

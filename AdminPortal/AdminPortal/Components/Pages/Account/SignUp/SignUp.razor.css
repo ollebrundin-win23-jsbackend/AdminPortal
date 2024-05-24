@@ -9,7 +9,8 @@
 }
 .sign-up h1 {
   font-size: 40px;
-  margin: 0;
+  margin: 20px;
+  text-align: center;
 }
 .sign-up ::deep form label {
   font-weight: 700;

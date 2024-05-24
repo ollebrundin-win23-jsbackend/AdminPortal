@@ -1,0 +1,23 @@
+﻿<section class="sidebar">
+    <div class="image-container">
+        <a href=""><i class="fa-solid fa-rotate-reverse"></i></a>
+        <img src="/images/profile-pic.png" alt="Profile pic">
+    </div>
+    <h3>
+        @FirstName @LastName (ADMIN)
+    </h3>
+    <p>
+        @Email
+    </p>
+    <a class="sidebar-btn" href="/Account/SignOut"><i class="fa-regular fa-arrow-left-from-line"></i>Sign Out</a>
+</section>
+
+
+@code {
+    [Parameter]
+    public string FirstName { get; set; } = "";
+    [Parameter]
+    public string LastName { get; set; } = "";
+    [Parameter]
+    public string Email { get; set; } = "";
+}

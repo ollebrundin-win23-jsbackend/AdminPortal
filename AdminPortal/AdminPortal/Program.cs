@@ -3,6 +3,7 @@ using AdminPortal.Components;
 using AdminPortal.Components.Account;
 using AdminPortal.Data;
 using AdminPortal.Helpers.Middlewares;
+using AdminPortal.Repos;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,8 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => {
     .AddDefaultTokenProviders();
 
 builder.Services.AddHttpClient();
+
+builder.Services.AddScoped<UserRepo>();
 
 builder.Services.AddScoped<CookieEvents>();
 
