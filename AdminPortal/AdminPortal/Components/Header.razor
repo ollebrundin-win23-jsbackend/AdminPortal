@@ -1,0 +1,31 @@
+﻿<header>
+    <div class="header-container">
+        <nav>
+            <div class="nav-container">
+                <a class="nav-links" href="/">Home</a>
+                <AuthorizeView>
+                    <Authorized>
+                        <a class="nav-links" href="/Courses">Courses</a>
+                    </Authorized>
+                    <NotAuthorized>
+
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+        </nav>
+        <nav>
+            <div class="nav-container">
+                <AuthorizeView>
+                    <Authorized>
+                        <a class="avi-button" href="/Account/Details"><img class="avi" src="/images/profile-pic.png"></a>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a class="btn light" href="/Account/SignIn"><i class="fa-regular fa-arrow-right-to-bracket"></i>Sign in</a>
+                        <a class="btn" href="/Account/SignUp"><i class="fa-regular fa-user"></i>Sign up</a>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+        </nav>
+    </div>
+</header>
+

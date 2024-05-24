@@ -1,0 +1,14 @@
+﻿[
+  {
+    "outputFile": "Components/Pages/Account/SignIn/SignIn.razor.css",
+    "inputFile": "Components/Pages/Account/SignIn/SignIn.razor.scss"
+  },
+  {
+    "outputFile": "wwwroot/app.css",
+    "inputFile": "wwwroot/app.scss"
+  },
+  {
+    "outputFile": "Components/Header.razor.css",
+    "inputFile": "Components/Header.razor.scss"
+  }
+]

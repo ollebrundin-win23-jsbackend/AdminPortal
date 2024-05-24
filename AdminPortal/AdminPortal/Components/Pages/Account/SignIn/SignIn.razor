@@ -1,0 +1,53 @@
+﻿@page "/Account/SignIn"
+@using AdminPortal.Components.Account
+@using AdminPortal.Data
+@using AdminPortal.Models
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject NavigationManager NavigationManager
+
+<PageTitle>Sign In</PageTitle>
+
+<AuthorizeView Context="authContext">
+    <Authorized>
+        <RedirectToHomePage />
+    </Authorized>
+    <NotAuthorized>
+        <section id="sign-in" class="sign-in">
+            <h1>Sign In</h1>
+            <EditForm Model="Model" method="post" OnValidSubmit="SignInUser" FormName="sign-in" novalidate>
+                <DataAnnotationsValidator />
+                <label for="email">Email</label>
+                <InputText @bind-Value="Model.Email" type="email" class="text-input" id="email" aria-required="true" placeholder="user@domain.com" />
+                <ValidationMessage For="() => Model.Email" />
+                <label for="password">Password</label>
+                <InputText @bind-Value="Model.Password" type="password" class="text-input" id="password" aria-required="true" placeholder="********" />
+                <ValidationMessage For="() => Model.Password" />
+                <p class="error-message">
+                    @errorMessage
+                </p>
+                <button type="submit" class="btn">Sign in</button>
+            </EditForm>
+        </section>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [SupplyParameterFromForm]
+    private SignInModel Model { get; set; } = new SignInModel();
+
+    private string? errorMessage;
+
+    public async Task SignInUser(EditContext editContext)
+    {
+        var result = await SignInManager.PasswordSignInAsync(Model.Email, Model.Password, true, false);
+
+        if (!result.Succeeded)
+        {
+            errorMessage = "Invalid login.";
+            return;
+        }
+
+        NavigationManager.NavigateTo("/");
+    }
+}
