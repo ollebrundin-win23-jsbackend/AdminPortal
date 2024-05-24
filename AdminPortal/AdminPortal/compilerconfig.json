@@ -10,5 +10,9 @@
   {
     "outputFile": "Components/Header.razor.css",
     "inputFile": "Components/Header.razor.scss"
+  },
+  {
+    "outputFile": "Components/Pages/Account/SignUp/SignUp.razor.css",
+    "inputFile": "Components/Pages/Account/SignUp/SignUp.razor.scss"
   }
 ]
