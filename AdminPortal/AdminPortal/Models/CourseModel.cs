@@ -53,5 +53,7 @@ namespace AdminPortal.Models
         [DataType(DataType.Text)]
         [Required(ErrorMessage = "You must enter an image URL.")]
         public string ImageUrl { get; set; } = null!;
+
+        public bool OnInitAlreadyLoaded { get; set; } = false;
     }
 }

@@ -1,0 +1,58 @@
+section {
+    ::deep form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        label {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .text-input, select-input {
+            display: block;
+            width: 60%;
+            padding: 12px 18px;
+            border: none;
+            outline: 1px solid #D4D7E5;
+            border-radius: 6px;
+            margin: auto;
+            margin-bottom: 22px;
+
+            @media(max-width: 768px) {
+                font-size: 14px;
+            }
+        }
+
+        .validation-message {
+            color: red;
+            display: block;
+        }
+
+        .btn {
+            cursor: pointer;
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        .cancel {
+            color: black;
+            padding: 10px;
+            background-color: lightgrey;
+        }
+
+        .delete {
+            cursor: pointer;
+            border: none;
+            margin-bottom: 20px;
+            color: black;
+            padding: 10px;
+            background-color: red;
+        }
+
+        .error-message {
+            color: red;
+        }
+    }
+}

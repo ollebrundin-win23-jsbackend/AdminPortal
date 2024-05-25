@@ -1,0 +1,175 @@
+﻿@* Måste sätta rendermode som interactive så att delete knappen fungerar *@
+@rendermode InteractiveServer
+
+@inject HttpClient HttpClient
+@inject IConfiguration Configuration
+@inject NavigationManager NavigationManager
+
+@page "/SingleCourse/{id:int}"
+@using System.Net.Http.Headers
+@using System.Text.Json
+@using AdminPortal.Models
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.IdentityModel.Tokens
+@using Newtonsoft.Json
+@using System.Diagnostics
+
+@attribute [Authorize]
+
+<PageTitle>@Model.Title</PageTitle>
+
+<section>
+    <EditForm Model="Model" method="post" OnValidSubmit="UpdateCourse" FormName="update-course" novalidate>
+        <DataAnnotationsValidator />
+        <InputCheckbox @bind-Value="Model.OnInitAlreadyLoaded" id="on-init-already-loaded" hidden />
+        <label for="title">Title</label>
+        <InputText @bind-Value="Model.Title" type="text" class="text-input" id="title" aria-required="true" />
+        <ValidationMessage For="() => Model.Title" />
+        <label for="header-description">Header description</label>
+        <InputText @bind-Value="Model.HeaderDescription" type="text" class="text-input" id="header-description" aria-required="true" />
+        <ValidationMessage For="() => Model.HeaderDescription" />
+        <label for="description">Description</label>
+        <InputText @bind-Value="Model.Description" type="text" class="text-input" id="description" aria-required="true" />
+        <ValidationMessage For="() => Model.Description" />
+        <label for="author">Author</label>
+        <InputText @bind-Value="Model.Author" type="text" class="text-input" id="author" aria-required="true" />
+        <ValidationMessage For="() => Model.Author" />
+        <label for="price">Price</label>
+        <InputText @bind-Value="Model.Price" type="text" class="text-input" id="price" aria-required="true" />
+        <ValidationMessage For="() => Model.Price" />
+        <label for="discounted-price">Discounted price</label>
+        <InputText @bind-Value="Model.DiscountedPrice" type="text" class="text-input" id="discounted-price" aria-required="false" />
+        <ValidationMessage For="() => Model.DiscountedPrice" />
+        <label for="hours">Hours</label>
+        <InputText @bind-Value="Model.Hours" type="text" class="text-input" id="hours" aria-required="true" />
+        <ValidationMessage For="() => Model.Hours" />
+        <label for="likes">Likes</label>
+        <InputText @bind-Value="Model.Likes" type="text" class="text-input" id="likes" aria-required="false" />
+        <ValidationMessage For="() => Model.Likes" />
+        <label for="like-percentage">Like percentage</label>
+        <InputText @bind-Value="Model.LikePercentage" type="text" class="text-input" id="like-percentage" aria-required="false" />
+        <ValidationMessage For="() => Model.LikePercentage" />
+        <label for="is-best-seller">Best seller?</label>
+        <InputSelect @bind-Value="Model.IsBestSeller" class="select-input" id="is-best-seller" aria-required="true">
+            <option selected value="true">Yes</option>
+            <option value="false">No</option>
+        </InputSelect>
+        <label for="rating">Rating</label>
+        <InputSelect @bind-Value="Model.Rating" class="select-input" id="rating" aria-required="false">
+            <option selected value="1">1/5</option>
+            <option value="2">2/5</option>
+            <option value="3">3/5</option>
+            <option value="4">4/5</option>
+            <option value="5">5/5</option>
+        </InputSelect>
+        <label for="reviews">Reviews</label>
+        <InputText @bind-Value="Model.Reviews" type="text" class="text-input" id="reviews" aria-required="false" />
+        <ValidationMessage For="() => Model.Reviews" />
+        <label for="image-url">Image URL</label>
+        <InputText @bind-Value="Model.ImageUrl" type="text" class="text-input" id="image-url" aria-required="true" />
+        <ValidationMessage For="() => Model.ImageUrl" />
+        <p class="error-message">@errorMessage</p>
+        <button class="btn" type="submit">Update course</button>
+        <a class="cancel" href="/SingleCourse/@Id">Cancel</a>
+        <button type="button" class="delete" @onclick="DeleteCourse">Delete course</button>
+    </EditForm>
+</section>
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (!Model.OnInitAlreadyLoaded)
+            {
+                var tokenResult = await HttpClient.GetAsync(Configuration.GetValue<string>("TokenProviderUrl")); //Vi gör en GET request till vår TokenProvider för att hämta vår token.
+                var token = await tokenResult.Content.ReadAsStringAsync(); //Vår token lagras som en sträng.
+                HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);//Och sätts sedan som en authorization header i vår HttpClient.
+
+                //HttpContent i form av StringContent skapas, som innehåller vår query. Den postas även som en application/json för att det ska hanteras på rätt sätt (om man bara postar som en vanlig sträng får man 404 not found)
+                var query = new StringContent("{\"query\":\"query($id:Int!){getCourse(id:$id){id title headerDescription description author price discountedPrice hours likes likePercentage isBestSeller rating reviews imageUrl } }\", \"variables\":{\"id\":" + Id + "} }", System.Text.Encoding.UTF8, "application/json");
+
+                var response = await HttpClient.PostAsync(Configuration.GetValue<string>("GraphQLUrl"), query); //Vi gör en POST request till vårt GraphQL API
+
+                if (response.IsSuccessStatusCode)
+                {
+                    //I verkliga scenarion bör man kanske kolla så att resultatet nedan inte innehåller något errors objekt, men nu skippar jag det
+                    var result = await response.Content.ReadFromJsonAsync<JsonElement>(); //Innehållet i responsen läses ut från en Json sträng till ett JsonElement, som tillåter oss att köra GetProperty nedan
+                    var courseJson = result.GetProperty("data").GetProperty("getCourse").ToString(); //Här kan vi alltså hämta properties från Json objektet vilket är smidigt i detta fallet, då vi får tillbaka ett "data" objekt som innehåller ett "getCourse" objekt, som i sin tur innehåller själva objektet vi faktiskt vill hämta ut.
+                    Model = JsonConvert.DeserializeObject<CourseModel>(courseJson)!; //Slutligen gör vi om strängen (eftersom vi körde ToString) till vår CourseCard model.
+                }
+
+                Model.OnInitAlreadyLoaded = true;
+            }
+
+        }
+        catch { }
+    }
+
+    [SupplyParameterFromForm(FormName = "update-course")]
+    private CourseModel Model { get; set; } = new CourseModel();
+
+    public async Task UpdateCourse(EditContext editContext)
+    {
+        try
+        {
+            var tokenResult = await HttpClient.GetAsync(Configuration.GetValue<string>("TokenProviderUrl")); //Vi gör en GET request till vår TokenProvider för att hämta vår token.
+            var token = await tokenResult.Content.ReadAsStringAsync(); //Vår token lagras som en sträng.
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);//Och sätts sedan som en authorization header i vår HttpClient.
+
+            //HttpContent i form av StringContent skapas, som innehåller vår query. Den postas även som en application/json för att det ska hanteras på rätt sätt (om man bara postar som en vanlig sträng får man 404 not found)
+            var query = new StringContent("{\"query\":\"mutation($entity:CourseEntityInput!){updateCourse(entity:$entity) }\", \"variables\":{\"entity\":{\"id\":" + Id + ",\"title\":\"" + Model.Title + "\",\"headerDescription\":\"" + Model.HeaderDescription + "\",\"description\":\"" + Model.Description + "\",\"author\":\"" + Model.Author + "\",\"price\":" + Model.Price + ",\"discountedPrice\":" + (Model.DiscountedPrice.IsNullOrEmpty() ? "null" : Model.DiscountedPrice) + ",\"hours\":" + Model.Hours + ",\"likes\":" + (Model.Likes.IsNullOrEmpty() ? "null" : Model.Likes) + ",\"likePercentage\":" + (Model.LikePercentage.IsNullOrEmpty() ? "null" : Model.LikePercentage) + ",\"isBestSeller\":" + Model.IsBestSeller + ",\"rating\":" + (Model.Rating.IsNullOrEmpty() ? "null" : Model.Rating) + ",\"reviews\":" + (Model.Reviews.IsNullOrEmpty() ? "null" : Model.Reviews) + ",\"imageUrl\":\"" + Model.ImageUrl + "\"} } }", System.Text.Encoding.UTF8, "application/json");
+
+            var response = await HttpClient.PostAsync(Configuration.GetValue<string>("GraphQLUrl"), query); //Vi gör en POST request till vårt GraphQL API
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/SingleCourse/" + Id);
+            }
+            else
+            {
+                errorMessage = "Something went wrong."; //Jag hade egentligen velat lägga detta i catch delen, men Blazor är så jävla buggigt så man får nån NavigationException helt utan anledning, ingen lösning finns vad jag vet
+                return;
+            }
+        }
+        catch { }
+
+    }
+
+    public async Task DeleteCourse(MouseEventArgs mouseEventArgs)
+    {
+        try
+        {
+            var tokenResult = await HttpClient.GetAsync(Configuration.GetValue<string>("TokenProviderUrl")); //Vi gör en GET request till vår TokenProvider för att hämta vår token.
+            var token = await tokenResult.Content.ReadAsStringAsync(); //Vår token lagras som en sträng.
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);//Och sätts sedan som en authorization header i vår HttpClient.
+
+            //HttpContent i form av StringContent skapas, som innehåller vår query. Den postas även som en application/json för att det ska hanteras på rätt sätt (om man bara postar som en vanlig sträng får man 404 not found)
+            var query = new StringContent("{\"query\":\"mutation($id:Int!){deleteCourse(id:$id) }\", \"variables\":{\"id\":" + Id + "} }", System.Text.Encoding.UTF8, "application/json");
+
+            var response = await HttpClient.PostAsync(Configuration.GetValue<string>("GraphQLUrl"), query); //Vi gör en POST request till vårt GraphQL API
+
+            var test = await response.RequestMessage!.Content!.ReadAsStringAsync();
+            Debug.WriteLine(test);
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/Courses/");
+            }
+            else
+            {
+                errorMessage = "Something went wrong.";
+                return;
+            }
+        }
+        catch { }
+
+    }
+}
+

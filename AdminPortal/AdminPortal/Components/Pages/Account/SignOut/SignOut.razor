@@ -1,0 +1,17 @@
+﻿@page "/Account/SignOut"
+@using AdminPortal.Data
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject NavigationManager NavigationManager
+
+@attribute [Authorize]
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await SignInManager.SignOutAsync();
+
+        NavigationManager.NavigateTo("/Account/SignIn");
+    }
+}
